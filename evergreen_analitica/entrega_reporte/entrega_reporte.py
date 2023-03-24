@@ -34,9 +34,9 @@ def entrega_reporte_xlsx():
     data_post = {
         'File': url_archivo
     }
-    post_response = requests.post(api_cls_to_xlsx_converter, data=data_post)
-    url_xlsx =  post_response['Files']['Url']
-    nombre_xlsx = post_response['Files']['FileName']
+    post_response = requests.post(api_cls_to_xlsx_converter, data=data_post).json()
+    url_xlsx =  post_response['Files'][0]['Url']
+    nombre_xlsx = post_response['Files'][0]['FileName']
 
     return jsonify({'nombre_xlsx': nombre_xlsx, 'url_descarga_xlsx': url_xlsx})
 
@@ -50,9 +50,9 @@ def entrega_reporte_pdf():
     data_post = {
         'File': url_archivo
     }
-    post_response = requests.post(api_xlsx_to_pdf_converter, data=data_post)
-    url_pdf =  post_response['Files']['Url']
-    nombre_pdf = post_response['Files']['FileName']
+    post_response = requests.post(api_xlsx_to_pdf_converter, data=data_post).json()
+    url_pdf =  post_response['Files'][0]['Url']
+    nombre_pdf = post_response['Files'][0]['FileName']
 
     return jsonify({'nombre_pdf': nombre_pdf, 'url_descarga_pdf': url_pdf})
 
