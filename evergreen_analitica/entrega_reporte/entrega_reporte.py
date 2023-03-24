@@ -3,6 +3,7 @@ from flask import jsonify
 from flask import request
 from flask import Blueprint
 import json, os, requests
+from evergreen_analitica import ingestedFiles
 
 entrega_reporte_micro_service = Blueprint("entrega_reporte_micro_service", __name__)
 
@@ -18,7 +19,7 @@ entrega_reporte_micro_service = Blueprint("entrega_reporte_micro_service", __nam
 @entrega_reporte_micro_service.route('/api/obtener_archivos', methods=['GET'])
 def obtener_archivos():
     print("Obteniendo los archivos")
-    archivos = [{'nombre': 'asdfasdf', 'url': 'http://asdfas.cas'}, {'nombre': 'qwerqw', 'url': 'http://qwerq.cas'}]
+    archivos = list(ingestedFiles.find({}))
     return jsonify({'archivos': archivos})
 
 
@@ -41,7 +42,7 @@ def entrega_reporte_xlsx():
 @entrega_reporte_micro_service.route('/api/entrega_reporte_pdf', methods=['POST'])
 def entrega_reporte_pdf():
     print("entrega reporte pdf")
-    api_xlsx_to_pdf_converter = 'https://v2.convertapi.com/convert/xlsx/to/pdf?Secret=6mSJbYN6n0hm4GTj&StoreFile=true'
+    api_xlsx_to_pdf_converter = 'https://v2.convertapi.com/convert/csv/to/pdf?Secret=6mSJbYN6n0hm4GTj&StoreFile=true'
     data = request.json
     url_archivo = data['Url']
     data_post = {
