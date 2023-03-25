@@ -4,7 +4,7 @@ from flask import request
 from flask import Blueprint
 import json
 from evergreen_analitica import ingestedFiles
-from bson import json_util
+from bson import json_util, ObjectId
 
 tratamiento_archivos_micro_service = Blueprint("tratamiento_archivos_micro_service", __name__)
 
@@ -27,15 +27,17 @@ def listar_archivos():
 
 @tratamiento_archivos_micro_service.route('/api/cambiar_nombre_archivo', methods=['POST'])
 def cambiar_nombre_archivo():
-    nombre_archivo = request.json.get('nombre_archivo')
-    nuevo_nombre_archivo = request.json.get('nuevo_nombre_archivo')
+    file_id = request.json.get('FileId')
+    nuevo_nombre = request.json.get('nuevo_nombre')
 
-    archivo = ingestedFiles.find_one({'FileName': nombre_archivo})
+    archivo = ingestedFiles.find_one({'_id': ObjectId(file_id)})
     if not archivo:
-        return jsonify({'error': 'No se encontró el archivo'})
+        return jsonify({'error': 'No se encontró el archivo con ese ID'})
 
-    ingestedFiles.update_one({'FileName': nombre_archivo}, {'$set': {'FileName': nuevo_nombre_archivo}})
+    ingestedFiles.update_one({'_id': ObjectId(file_id)}, {'$set': {'nombre': nuevo_nombre}})
 
-    archivo_actualizado = ingestedFiles.find_one({'FileName': nuevo_nombre_archivo})
-    return jsonify({'archivo': archivo_actualizado})
+    archivo_actualizado = ingestedFiles.find_one({'_id': ObjectId(file_id)})
+    archivo_enviar = json.loads(json_util.dumps(archivo_actualizado))
+    return jsonify({'archivo': archivo_enviar})
+
 
