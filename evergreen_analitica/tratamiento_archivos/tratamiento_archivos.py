@@ -19,25 +19,26 @@ tratamiento_archivos_micro_service = Blueprint("tratamiento_archivos_micro_servi
 
 @tratamiento_archivos_micro_service.route('/api/listar_archivos', methods=['GET'])
 def listar_archivos():
-    print("Listando los archivos")
     archivos = list(ingestedFiles.find({}))
     archivos_enviar = json.loads(json_util.dumps(archivos))
-    return jsonify({'archivos': archivos_enviar})
+    return jsonify({'archivos': archivos_enviar}), 200
 
 
-@tratamiento_archivos_micro_service.route('/api/cambiar_nombre_archivo', methods=['POST'])
-def cambiar_nombre_archivo():
-    file_id = request.json.get('FileId')
-    nuevo_nombre = request.json.get('nuevo_nombre')
+@tratamiento_archivos_micro_service.route('/api/actualizar_archivo/<string:file_id>', methods=['PUT'])
+def actualizar_archivo(file_id):
+    # Obtener el nuevo nombre de archivo del cuerpo de la solicitud
+    nuevo_nombre = request.json['nuevo_nombre']
 
-    archivo = ingestedFiles.find_one({'_id': ObjectId(file_id)})
-    if not archivo:
-        return jsonify({'error': 'No se encontró el archivo con ese ID'})
+    # Buscar el archivo por ID y verificar si se encontró o no
+    archivo_db = ingestedFiles.find_one({'_id': ObjectId(file_id)})
+    if not archivo_db:
+        return jsonify({'error': 'No se encontró el archivo con ese ID'}), 404
 
-    ingestedFiles.update_one({'_id': ObjectId(file_id)}, {'$set': {'nombre': nuevo_nombre}})
+    # Actualizar el campo de nombre de archivo en la base de datos
+    ingestedFiles.update_one({'_id': ObjectId(file_id)}, {'$set': {'FileName': nuevo_nombre}})
 
+    # Devolver el archivo actualizado
     archivo_actualizado = ingestedFiles.find_one({'_id': ObjectId(file_id)})
     archivo_enviar = json.loads(json_util.dumps(archivo_actualizado))
-    return jsonify({'archivo': archivo_enviar})
-
+    return jsonify({'archivo': archivo_enviar}), 200
 
